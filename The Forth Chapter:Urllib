@@ -1,0 +1,83 @@
+一、用Urllib库快速爬取
+# 内容爬取
+import urllib.request
+file = urllib.request.urlopen("www.baidu.com")  #网站给一个对象
+data = file.read()  #读取全部内容   赋值给字符串变量
+dataline = file.readline()  #读取一行内容   赋值给列表变量
+
+#内容存在本地
+fhandle = open("E:\c\question\part.html","wb") #html格式的文件
+fhandle.write(data)   #数据写入
+fhandle.close()
+
+#直接写入：   读+写  合一步
+fhandle = urllib.request.urlretrieve("网站名",filename="本地文件地址")
+urllib.request.urlcleanup()   #清理缓存
+
+file.info() #当前环境信息
+file.getcode() #当前爬取网页的状态码
+file.geturl() #当前爬取网页的URL
+
+#当URL中有汉字等不符合标准的字符时， 要编码
+urllib.request.quote("网站URL")
+#解码
+urllib.request.unquote("网站URL")
+
+二、模拟浏览器
+#方法一
+# 1.浏览器上找 User Agent
+#2. 修改报头
+headers = ("User-Agent","Mozilla/5.0 (Windows NT 10.0; …) \
+           Gecko/20100101 Firefox/70.0")  #存 User-Agent 信息
+opener = urllib.request.build_opener() #创建自定义的opener对象 
+opener.addheaders = [headers] #设置opener的报头信息
+data = opener.open(url).read() #读网站内容，已经模拟成浏览器
+#方法二
+req = urllib.request.Request(URL) #与上面比，两种对象
+req.add_header("User-Agent","Mozilla/5.0 (Windows NT 10.0; …) \
+               Gecko/20100101 Firefox/70.0") #伪装浏览器
+data = opener.open(url).read()    # 这个open（）和urlopen()的区别
+
+problem 1
+
+三、超时设置
+urlopen(timeout=1) #单位秒
+
+四、HTTP协议请求实战：共6种请求
+#1、GET请求————收进
+#分析URL组成
+keywd = "hello"
+url = "http:// www.baidu.com/s? wd=" + keywd
+#若 keywd 为中文，用quote()编码
+#接步骤：设置Request对象（req）、模拟浏览器、打开Request对象（req）传递信息、后续处理
+
+#2、POST请求————传出
+import urllib.parse
+postdata = urllib.parse.urlencode({"name":"账号","pass":"密码"}).encode('utf-8')
+#将数据用urlencode()编码处理， 再用encode()设置为utf-8格式
+req = urllib.request.Request(URL,postdata)
+#接步骤：模拟浏览器、打开Request对象（req）传递信息、后续处理
+
+#3、PUT请求————存在服务器指定位置
+#4、DELETE请求————删
+#5、HEAD请求————获取对应HTTP报头信息
+#6、OPTIONS请求————获得当前URL所支持的请求类型
+
+五、代理服务器的设置
+def use_proxy(proxy_addr,url):
+    import urllib.request
+    proxy = urllib.request.ProxyHandler({'http':proxy_addr}) #设置代理服务器信息 proxy_addr可变
+    opener = urllib.request.build_opener(proxy,urllib.request.HTTPHandler)
+    urllib.request.install_opener(opener) #创建全局默认的opener对象
+    #有全局默认的opener对象，urlopen()会使用这个对象
+problem 2: 上面这个注释
+    data = urllib.request.urlopen(url).read().encode('utf-8')
+    return data
+proxy_addr = "202.75.210.45:7777"
+data = use_proxy(url,proxy_addr)
+print(len(data))
+
+六、DebugLog: 实时打印调试日志
+
+七、URLError
+   (1)连接不上服务器，(2)远程URL不存在(3)无网络(4)HTTPError
