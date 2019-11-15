@@ -1,7 +1,25 @@
 re库
 
 一、正则表达式基础知识
-  1、原子
-      分类：[图片]
-  2、元字符
-  
+  1、原子：
+      （1）普通字符：数字、字母、下划线等
+      （2）非打印字符：用于格式控制，eg:\t \n
+      （3）通用字符：\w\W\s\S\d\D
+      （4）原子表：一组地位平等的原子[]、[^]
+  2、元字符:有特殊含义的字符
+      （1）任意匹配元字符：.(除换行符外任意字符)
+      （2）边界先知元字符：^(匹配字符串的开始)，$(字符串的结束)
+      （3）限定符：*(0+) , ?(0,1) , +(1+) , {n}(恰好n次) , {n,}(至少n次) , {n,m}(n~m次)
+      （4）模式选择符： |
+      （5）模式单元符： ()
+  3、模式修正
+        I、M、L、U、S
+        eg: re.I 作re.search()参数re.search(pattern,string,re.I)
+  4、贪婪模式和懒惰模式
+二、正则表达式常见函数
+    1、re.match(pattern,string,flag)：从string起始位置匹配一个pattern
+    2、re.search(pattern,string,flag)：从string整个中匹配一个pattern
+    3、pattern = re.compile("设置的模式") #预编译
+       result = pattern.findall(string) #匹配所有pattern
+       合并：result = re.compile("pattern").findall(string)
+    4、re.sub(pattern,rep,string,max)：替换功能：rep—替换结果，max—替换次数
