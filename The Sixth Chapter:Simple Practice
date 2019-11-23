@@ -89,7 +89,7 @@
        x = 1
        #通过for循环遍历段子内容，并把内容分别赋给对应的变量         这些x,y是干什么用的？？？？？
        for content in contentlist:
-            content = content.replace("\n","")
+            content = content.replace("\n","")   #去掉\n
             #用字符串做为变量名，先将对应字符串赋给一个变量
             name = "content"+str(x)
             #通过exec()实现用字符串作为变量名并赋值
