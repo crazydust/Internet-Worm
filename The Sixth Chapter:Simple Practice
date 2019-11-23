@@ -1,21 +1,22 @@
 一、图片爬虫实战
+  爬京东上面手机页面的图片：
   import re
   import urllib.request
-  def craw(url,page):
+  def craw(url,page):  #爬取函数
       html1 = urllib.request.urlopen(url).read() #读取网页全部源代码
       html1 = str(html1)   #字符化
       pat1 = '<div .+? <div class="page clearfix">'  #第一个正则表达式
-      result1 = re.compile(pat1).findall(html1)
-      result1 = result1[10]
+      result1 = re.compile(pat1).findall(html1)  #第一次过滤：只包含正文的内容，广告什么的都去掉了
+      result1 = result1[10]   #这个是什么意思？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？
       pat2 = '<img width="220" height="220" data-img="1" data-lazy-img="//(.+? \.jpg)">'
-      imagelist = re.compile(pat2).findall(result1)
+      imagelist = re.compile(pat2).findall(result1)  #第二次过滤：只得到图片  存在一个列表list中
       x = 1
       for imageurl in imagelist:
-          imagename = "D:///本地路径(非文件名)"+str(page)+str(x)+".jpg"
+          imagename = "D:///本地路径(非文件名)"+str(page)+str(x)+".jpg"   # i转换为str格式    图片保存到本地
           imageurl = "https:// "+imageurl
           try:
-              urllib.request.urlretrieve(imageurl,filename = imagename)
-          except urllib.error.URLError as e:
+              urllib.request.urlretrieve(imageurl,filename = imagename)  #对应链接存储到本地
+          except urllib.error.URLError as e:  #出错则直接跳到下一次
               if hasattr(e, "code"):
                   x += 1
               if hasattr(e, "reason"):
@@ -23,5 +24,88 @@
           x += 1
           
    for i in range(1,79):
-      url = "https://list.jd.com/list.html?cat=9987,653,655&page=" + str(i)
+      url = "https://list.jd.com/list.html?cat=9987,653,655&page=" + str(i) # i转换为str格式
       craw(url,i)
+
+二、链接爬虫实战
+   1、步骤：
+      （1）确定入口链接
+      （2）构建正则表达式
+      （3）伪装成浏览器，并爬取
+      （4）用正则表达式提取链接
+      （5）过滤重复链接
+      （6）后续操作
+   2、代码实现：
+      （爬CDSN中的链接）
+   import re
+   import urllib.request
+   def getlink(url):
+       #模拟成浏览器
+       headers = ("User-Agent":"Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/53
+                        7.36 (KHTML, like Gecko) Chrome/70.0.3538.25 Safari/537.36")
+       opener = urllib.request.build_opener()
+       opener.addheaders = [header]
+       #讲opener安装为全局
+       urllib.request.install_opener(opener)
+       file = urllib.request.urlopen(url)
+       data = str(file.read())
+       #构建正则表达式找链接
+       pat = 'https? :// [^\s)"; ]+\.(\w|/)*)'
+       link = re.compile(pat).findall(data)
+       #去除重复元素
+       link = list(set(link))
+       return link
+   #要爬取网页
+   url = "http://blog.csnd.net/"
+   linklist = getlink(url)
+   for link in linklist:
+       print(link[0])
+三、糗事百科爬虫实战
+   爬取段子
+   1、步骤：
+      （1）分析网址规律，构建网址变量，并通过for循环实现多页内容爬取
+      （2）构建函数（对应用户+用户的段子内容）：模拟浏览器+正则表达式+提取内容
+      （3）for循环多次运行函数
+   2、代码实现：
+   import re
+   import urllib.request
+   def getcontent(url,page):
+       #模拟成浏览器
+       headers = ("User-Agent":"Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/53
+                        7.36 (KHTML, like Gecko) Chrome/70.0.3538.25 Safari/537.36")
+       opener = urllib.request.build_opener()
+       opener.addheaders = [header]
+       #讲opener安装为全局
+       urllib.request.install_opener(opener)
+       data = urllib.request.urlopen(url).read().decode("utf-8")   #解码，得汉字？
+       #构建对应用户提取的正则表达式
+       userpat = 'target="_blank" title="(.*?)">'
+       #构建段子内容提取的正则表达式
+       contentpat = '<div class="content">(.*? )<div/>'
+       #寻找出所有用户
+       userlist = re.compile(userpat,re.S).findall(data)
+       #寻找出所有段子内容
+       contentlist = re.compile(content,re.S).findall(data)
+       x = 1
+       #通过for循环遍历段子内容，并把内容分别赋给对应的变量         这些x,y是干什么用的？？？？？
+       for content in contentlist:
+            content = content.replace("\n","")
+            #用字符串做为变量名，先将对应字符串赋给一个变量
+            name = "content"+str(x)
+            #通过exec()实现用字符串作为变量名并赋值
+            exec(name+='content')
+            x += 1
+        y = 1
+        #通过for循环遍历用户，并输出该用户对应的内容
+        for user in userlist:
+              name = "content"+str(y)
+              print("用户"+str(page)+str(y)+"是："+user)
+              print("内容是：")
+              exec("print("+name+")")
+              print("\n")
+              y += 1
+   #分别获取各页的段子，通过for循环可以获取多页
+   for i in range(1,30):
+        url = "https://www.qiushibaike.com/8hr/page/"+str(i)
+        getcontent(url,i)
+        
